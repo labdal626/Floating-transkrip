@@ -1,1 +1,905 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Transkrip Tools</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .text-area:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .controls {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #cbd5e0;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            min-width: 35px;
+            text-align: center;
+            font-weight: 600;
+            color: #4facfe;
+            font-size: 0.9rem;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #0fd850 0%, #00c9ff 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: white;
+        }
+
+        .transcript-section {
+            margin-top: 20px;
+        }
+
+        .transcript-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .transcript-container {
+            height: 200px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 15px;
+            overflow: hidden;
+            position: relative;
+            background: #f8fafc;
+        }
+
+        .transcript-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #333;
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .transcript-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .transcript-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .transcript-content::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-top: 15px;
+        }
+
+        /* Hidden video untuk PiP */
+        #pipVideo {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+            width: 300px;
+            height: 200px;
+            z-index: -1;
+        }
+
+        /* Canvas untuk PiP */
+        #pipCanvas {
+            display: none;
+        }
+
+        /* Instructions */
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.85rem;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .transcript-container {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <h1>Transkrip Tools</h1>
+            <p>Pembantu teks untuk konten video & presentasi</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h3>Cara Menggunakan Mode Mengambang:</h3>
+                <ol>
+                    <li>Masukkan teks transkrip Anda</li>
+                    <li>Klik "Buka Mode Mengambang"</li>
+                    <li>Izinkan popup jika diminta</li>
+                    <li>Jendela akan mengambang di atas aplikasi lain</li>
+                    <li>Gunakan saat merekam layar!</li>
+                </ol>
+            </div>
+
+            <div class="input-section">
+                <label for="textInput">Masukkan Transkrip:</label>
+                <textarea class="text-area" id="textInput" placeholder="Tulis atau tempel transkrip Anda di sini...">Selamat datang di Transkrip Tools! Ini adalah contoh teks panjang untuk menunjukkan fungsi scrolling otomatis. Anda dapat mengganti teks ini dengan transkrip video, presentasi, atau konten lainnya. Fitur utama aplikasi ini adalah kemampuan untuk mengatur kecepatan scrolling teks sesuai kebutuhan Anda. Teks akan bergulir secara otomatis sehingga Anda dapat mengikuti narasi dengan mudah. Gunakan slider di bawah untuk mengatur kecepatan scrolling. Klik tombol "Mulai Scroll" untuk memulai proses. Anda juga dapat menggunakan mode mengambang untuk menampilkan teks di atas aplikasi lain. Ini sangat berguna saat merekam video atau presentasi. Cobalah fitur-fitur ini dan tingkatkan produktivitas Anda!</textarea>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="speedControl">Kecepatan Scroll</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="20" value="5" class="slider" id="speedControl">
+                        <span class="value-display" id="speedValue">5</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fontSize">Ukuran Font</label>
+                    <div class="slider-container">
+                        <input type="range" min="12" max="20" value="16" class="slider" id="fontSize">
+                        <span class="value-display" id="fontSizeValue">16px</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-primary" id="startBtn">Mulai Scroll</button>
+                <button class="btn btn-secondary" id="pauseBtn">Jeda</button>
+                <button class="btn btn-danger" id="resetBtn">Reset</button>
+                <button class="btn btn-success" id="saveBtn">Simpan</button>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-warning" id="openFloatBtn">Buka Mode Mengambang</button>
+                <button class="btn btn-secondary" id="copyBtn">Salin Teks</button>
+            </div>
+            
+            <div class="transcript-section">
+                <label>Preview Transkrip:</label>
+                <div class="transcript-container">
+                    <div class="transcript-content" id="transcriptDisplay"></div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div>Status: <span id="status">Siap</span></div>
+                <div>Kecepatan: <span id="statusSpeed">5</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden elements for PiP -->
+    <video id="pipVideo" muted></video>
+    <canvas id="pipCanvas"></canvas>
+
+    <script>
+        // Elemen-elemen DOM
+        const textInput = document.getElementById('textInput');
+        const transcriptDisplay = document.getElementById('transcriptDisplay');
+        const speedControl = document.getElementById('speedControl');
+        const speedValue = document.getElementById('speedValue');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const openFloatBtn = document.getElementById('openFloatBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const statusText = document.getElementById('status');
+        const statusSpeed = document.getElementById('statusSpeed');
+
+        // Variabel kontrol
+        let scrollInterval;
+        let isScrolling = false;
+        let speed = 5;
+        let fontSizeValueCurrent = 16;
+        let floatWindow = null;
+
+        // Inisialisasi
+        function init() {
+            updateTranscript();
+            transcriptDisplay.style.fontSize = `${fontSizeValueCurrent}px`;
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Kontrol slider
+            speedControl.addEventListener('input', function() {
+                speed = parseInt(this.value);
+                speedValue.textContent = speed;
+                statusSpeed.textContent = speed;
+            });
+
+            fontSize.addEventListener('input', function() {
+                fontSizeValueCurrent = parseInt(this.value);
+                fontSizeValue.textContent = `${fontSizeValueCurrent}px`;
+                transcriptDisplay.style.fontSize = `${fontSizeValueCurrent}px`;
+            });
+
+            // Input teks
+            textInput.addEventListener('input', updateTranscript);
+
+            // Tombol kontrol
+            startBtn.addEventListener('click', startScrolling);
+            pauseBtn.addEventListener('click', pauseScrolling);
+            resetBtn.addEventListener('click', resetScrolling);
+            saveBtn.addEventListener('click', saveText);
+            copyBtn.addEventListener('click', copyText);
+
+            // Mode mengambang - Popup Window
+            openFloatBtn.addEventListener('click', openFloatingWindow);
+
+            // Handle popup messages
+            window.addEventListener('message', function(event) {
+                if (event.data.type === 'UPDATE_TEXT') {
+                    updateFloatText(event.data.text);
+                } else if (event.data.type === 'UPDATE_SPEED') {
+                    updateFloatSpeed(event.data.speed);
+                } else if (event.data.type === 'UPDATE_FONT_SIZE') {
+                    updateFloatFontSize(event.data.fontSize);
+                } else if (event.data.type === 'START_SCROLL') {
+                    startFloatScrolling();
+                } else if (event.data.type === 'PAUSE_SCROLL') {
+                    pauseFloatScrolling();
+                } else if (event.data.type === 'RESET_SCROLL') {
+                    resetFloatScrolling();
+                }
+            });
+        }
+
+        function updateTranscript() {
+            const text = textInput.value || 'Masukkan teks transkrip Anda...';
+            transcriptDisplay.innerHTML = text.replace(/\n/g, '<br>');
+        }
+
+        // Fungsi scrolling
+        function startScrolling() {
+            if (isScrolling) return;
+            
+            isScrolling = true;
+            statusText.textContent = 'Scrolling...';
+            startBtn.disabled = true;
+            
+            scrollInterval = setInterval(() => {
+                transcriptDisplay.scrollTop += speed;
+                
+                // Update float window jika ada
+                if (floatWindow && !floatWindow.closed) {
+                    floatWindow.postMessage({
+                        type: 'SCROLL_POSITION',
+                        position: transcriptDisplay.scrollTop
+                    }, '*');
+                }
+                
+                // Reset jika sudah sampai akhir
+                if (transcriptDisplay.scrollTop >= transcriptDisplay.scrollHeight - transcriptDisplay.clientHeight) {
+                    resetScrolling();
+                }
+            }, 100);
+        }
+
+        function pauseScrolling() {
+            if (!isScrolling) return;
+            
+            clearInterval(scrollInterval);
+            isScrolling = false;
+            statusText.textContent = 'Dijeda';
+            startBtn.disabled = false;
+        }
+
+        function resetScrolling() {
+            pauseScrolling();
+            transcriptDisplay.scrollTop = 0;
+            
+            // Update float window jika ada
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'SCROLL_POSITION',
+                    position: 0
+                }, '*');
+            }
+            
+            statusText.textContent = 'Reset';
+            setTimeout(() => {
+                if (!isScrolling) statusText.textContent = 'Siap';
+            }, 2000);
+        }
+
+        // Fungsi simpan
+        function saveText() {
+            const textToSave = textInput.value || ' ';
+            const blob = new Blob([textToSave], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transkrip.txt';
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            statusText.textContent = 'Teks disimpan!';
+            setTimeout(() => {
+                statusText.textContent = 'Siap';
+            }, 2000);
+        }
+
+        // Fungsi salin
+        function copyText() {
+            textInput.select();
+            document.execCommand('copy');
+            statusText.textContent = 'Teks disalin!';
+            setTimeout(() => {
+                statusText.textContent = 'Siap';
+            }, 2000);
+        }
+
+        // Mode mengambang - Popup Window
+        function openFloatingWindow() {
+            // Buat HTML untuk popup window
+            const popupHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transkrip Mengambang</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: rgba(255, 255, 255, 0.95);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 2px solid #4facfe;
+            border-radius: 12px;
+        }
+        
+        .float-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .float-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .float-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        
+        .float-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .float-content {
+            flex: 1;
+            padding: 15px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .float-controls-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .float-control-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .float-start {
+            background: #4facfe;
+            color: white;
+        }
+        
+        .float-pause {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .float-reset {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .float-transcript {
+            flex: 1;
+            background: #f8fafc;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .float-transcript::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .float-transcript::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .float-transcript::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="float-header">
+        <span>Transkrip Mengambang</span>
+        <div class="float-controls">
+            <button class="float-btn" id="minimizeBtn" title="Minimalkan">−</button>
+            <button class="float-btn" id="closeBtn" title="Tutup">×</button>
+        </div>
+    </div>
+    
+    <div class="float-content">
+        <div class="float-controls-row">
+            <button class="float-control-btn float-start" id="startBtn">Mulai</button>
+            <button class="float-control-btn float-pause" id="pauseBtn">Jeda</button>
+            <button class="float-control-btn float-reset" id="resetBtn">Reset</button>
+        </div>
+        
+        <div class="float-transcript" id="floatTranscript">${textInput.value.replace(/\n/g, '<br>')}</div>
+    </div>
+
+    <script>
+        // Elemen-elemen popup
+        const floatTranscript = document.getElementById('floatTranscript');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const minimizeBtn = document.getElementById('minimizeBtn');
+        
+        // Variabel kontrol popup
+        let scrollInterval;
+        let isScrolling = false;
+        let speed = ${speed};
+        let fontSize = ${fontSizeValueCurrent};
+        let isMinimized = false;
+        
+        // Set font size
+        floatTranscript.style.fontSize = fontSize + 'px';
+        
+        // Event listeners
+        startBtn.addEventListener('click', function() {
+            window.opener.postMessage({type: 'START_SCROLL'}, '*');
+        });
+        
+        pauseBtn.addEventListener('click', function() {
+            window.opener.postMessage({type: 'PAUSE_SCROLL'}, '*');
+        });
+        
+        resetBtn.addEventListener('click', function() {
+            window.opener.postMessage({type: 'RESET_SCROLL'}, '*');
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            window.close();
+        });
+        
+        minimizeBtn.addEventListener('click', function() {
+            if (isMinimized) {
+                window.resizeTo(350, 300);
+                minimizeBtn.textContent = '−';
+                isMinimized = false;
+            } else {
+                window.resizeTo(350, 44);
+                minimizeBtn.textContent = '+';
+                isMinimized = true;
+            }
+        });
+        
+        // Terima pesan dari parent window
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'SCROLL_POSITION') {
+                floatTranscript.scrollTop = event.data.position;
+            } else if (event.data.type === 'UPDATE_TEXT') {
+                floatTranscript.innerHTML = event.data.text.replace(/\\n/g, '<br>');
+            } else if (event.data.type === 'UPDATE_SPEED') {
+                speed = event.data.speed;
+            } else if (event.data.type === 'UPDATE_FONT_SIZE') {
+                fontSize = event.data.fontSize;
+                floatTranscript.style.fontSize = fontSize + 'px';
+            } else if (event.data.type === 'START_SCROLL') {
+                startScrolling();
+            } else if (event.data.type === 'PAUSE_SCROLL') {
+                pauseScrolling();
+            } else if (event.data.type === 'RESET_SCROLL') {
+                resetScrolling();
+            }
+        });
+        
+        // Fungsi scrolling di popup
+        function startScrolling() {
+            if (isScrolling) return;
+            
+            isScrolling = true;
+            
+            scrollInterval = setInterval(() => {
+                floatTranscript.scrollTop += speed;
+                
+                // Kirim posisi ke parent
+                window.opener.postMessage({
+                    type: 'SCROLL_POSITION',
+                    position: floatTranscript.scrollTop
+                }, '*');
+                
+                // Reset jika sudah sampai akhir
+                if (floatTranscript.scrollTop >= floatTranscript.scrollHeight - floatTranscript.clientHeight) {
+                    resetScrolling();
+                }
+            }, 100);
+        }
+        
+        function pauseScrolling() {
+            if (!isScrolling) return;
+            
+            clearInterval(scrollInterval);
+            isScrolling = false;
+        }
+        
+        function resetScrolling() {
+            pauseScrolling();
+            floatTranscript.scrollTop = 0;
+            
+            // Kirim posisi ke parent
+            window.opener.postMessage({
+                type: 'SCROLL_POSITION',
+                position: 0
+            }, '*');
+        }
+        
+        // Kirim pesan bahwa popup sudah siap
+        window.onload = function() {
+            window.opener.postMessage({type: 'FLOAT_WINDOW_READY'}, '*');
+        };
+    <\/script>
+</body>
+</html>
+            `;
+
+            // Buka popup window
+            const popupFeatures = 'width=350,height=300,left=100,top=100,resizable=yes,scrollbars=no,status=no';
+            floatWindow = window.open('', 'TranskripMengambang', popupFeatures);
+            
+            if (floatWindow) {
+                floatWindow.document.write(popupHTML);
+                floatWindow.document.close();
+                statusText.textContent = 'Mode mengambang aktif';
+            } else {
+                alert('Popup diblokir! Izinkan popup untuk menggunakan mode mengambang.');
+                statusText.textContent = 'Popup diblokir';
+            }
+        }
+
+        // Update text di float window
+        function updateFloatText(text) {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_TEXT',
+                    text: text
+                }, '*');
+            }
+        }
+
+        // Update speed di float window
+        function updateFloatSpeed(newSpeed) {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_SPEED',
+                    speed: newSpeed
+                }, '*');
+            }
+        }
+
+        // Update font size di float window
+        function updateFloatFontSize(newFontSize) {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_FONT_SIZE',
+                    fontSize: newFontSize
+                }, '*');
+            }
+        }
+
+        // Start scrolling di float window
+        function startFloatScrolling() {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({type: 'START_SCROLL'}, '*');
+            }
+        }
+
+        // Pause scrolling di float window
+        function pauseFloatScrolling() {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({type: 'PAUSE_SCROLL'}, '*');
+            }
+        }
+
+        // Reset scrolling di float window
+        function resetFloatScrolling() {
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({type: 'RESET_SCROLL'}, '*');
+            }
+        }
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Update float window saat ada perubahan
+        textInput.addEventListener('input', function() {
+            updateTranscript();
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_TEXT',
+                    text: this.value
+                }, '*');
+            }
+        });
+
+        speedControl.addEventListener('input', function() {
+            const newSpeed = parseInt(this.value);
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_SPEED',
+                    speed: newSpeed
+                }, '*');
+            }
+        });
+
+        fontSize.addEventListener('input', function() {
+            const newFontSize = parseInt(this.value);
+            if (floatWindow && !floatWindow.closed) {
+                floatWindow.postMessage({
+                    type: 'UPDATE_FONT_SIZE',
+                    fontSize: newFontSize
+                }, '*');
+            }
+        });
+    </script>
+</body>
+</html>
