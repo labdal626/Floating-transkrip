@@ -1,1 +1,532 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transkrip Tools - PiP Mode</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
 
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .text-area {
+            width: 100%;
+            height: 130px;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 14px;
+            resize: vertical;
+            background: #f8fafc;
+        }
+
+        .controls {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 25px;
+        }
+
+        .value-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-success { background: linear-gradient(135deg, #0fd850 0%, #00c9ff 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; }
+
+        .preview {
+            height: 180px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8fafc;
+            overflow: hidden;
+        }
+
+        .preview-content {
+            height: 100%;
+            overflow-y: auto;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        /* Hidden canvas for PiP */
+        #pipCanvas {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+            width: 400px;
+            height: 300px;
+        }
+
+        /* Hidden video for PiP */
+        #pipVideo {
+            position: fixed;
+            top: -1000px;
+            left: -1000px;
+            width: 400px;
+            height: 300px;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            background: #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Transkrip Tools</h1>
+            <p>Mode Picture-in-Picture untuk Rekaman Layar</p>
+        </div>
+        
+        <div class="content">
+            <div class="instructions">
+                <h3>Cara Menggunakan Mode Mengambang:</h3>
+                <ul>
+                    <li>Masukkan teks transkrip Anda</li>
+                    <li>Klik tombol "Aktifkan PiP"</li>
+                    <li>Izinkan Picture-in-Picture jika diminta</li>
+                    <li>Jendela akan mengambang di atas aplikasi lain</li>
+                    <li><strong>Gunakan saat merekam layar!</strong></li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <label for="textInput">Masukkan Transkrip:</label>
+                <textarea class="text-area" id="textInput" placeholder="Tulis atau tempel transkrip Anda di sini...">Selamat datang di Transkrip Tools! Ini adalah contoh teks panjang untuk menunjukkan fungsi Picture-in-Picture. Anda dapat mengganti teks ini dengan transkrip video, presentasi, atau konten lainnya. Teks akan bergulir secara otomatis sehingga Anda dapat mengikuti narasi dengan mudah. Gunakan slider untuk mengatur kecepatan scrolling. Mode Picture-in-Picture sangat berguna saat merekam video atau presentasi karena jendela ini akan tetap mengambang di atas aplikasi lain. Cobalah fitur ini dan tingkatkan produktivitas Anda dalam membuat konten!</textarea>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="speedControl">Kecepatan Scroll</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="20" value="5" class="slider" id="speedControl">
+                        <span class="value-display" id="speedValue">5</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fontSize">Ukuran Font</label>
+                    <div class="slider-container">
+                        <input type="range" min="12" max="24" value="18" class="slider" id="fontSize">
+                        <span class="value-display" id="fontSizeValue">18px</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-primary" id="startBtn">Mulai Scroll</button>
+                <button class="btn btn-secondary" id="pauseBtn">Jeda</button>
+                <button class="btn btn-danger" id="resetBtn">Reset</button>
+                <button class="btn btn-success" id="saveBtn">Simpan</button>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-warning" id="pipBtn">Aktifkan PiP</button>
+                <button class="btn btn-secondary" id="copyBtn">Salin Teks</button>
+            </div>
+            
+            <div class="section">
+                <label>Preview Transkrip:</label>
+                <div class="preview">
+                    <div class="preview-content" id="previewContent"></div>
+                </div>
+            </div>
+            
+            <div class="status" id="status">
+                Status: Siap - Klik "Aktifkan PiP" untuk mode mengambang
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden elements for PiP -->
+    <canvas id="pipCanvas" width="400" height="300"></canvas>
+    <video id="pipVideo" muted></video>
+
+    <script>
+        // Elemen-elemen
+        const textInput = document.getElementById('textInput');
+        const previewContent = document.getElementById('previewContent');
+        const speedControl = document.getElementById('speedControl');
+        const speedValue = document.getElementById('speedValue');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const pipBtn = document.getElementById('pipBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const status = document.getElementById('status');
+        const pipCanvas = document.getElementById('pipCanvas');
+        const pipVideo = document.getElementById('pipVideo');
+
+        // Variabel kontrol
+        let scrollInterval;
+        let isScrolling = false;
+        let speed = 5;
+        let fontSizeValueCurrent = 18;
+        let pipInterval;
+        let isPiPActive = false;
+        let ctx;
+
+        // Inisialisasi
+        function init() {
+            updatePreview();
+            previewContent.style.fontSize = fontSizeValueCurrent + 'px';
+            
+            // Setup canvas context
+            ctx = pipCanvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, pipCanvas.width, pipCanvas.height);
+            
+            // Event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Controls
+            speedControl.addEventListener('input', function() {
+                speed = parseInt(this.value);
+                speedValue.textContent = speed;
+            });
+
+            fontSize.addEventListener('input', function() {
+                fontSizeValueCurrent = parseInt(this.value);
+                fontSizeValue.textContent = fontSizeValueCurrent + 'px';
+                previewContent.style.fontSize = fontSizeValueCurrent + 'px';
+            });
+
+            textInput.addEventListener('input', updatePreview);
+
+            // Buttons
+            startBtn.addEventListener('click', startScrolling);
+            pauseBtn.addEventListener('click', pauseScrolling);
+            resetBtn.addEventListener('click', resetScrolling);
+            saveBtn.addEventListener('click', saveText);
+            copyBtn.addEventListener('click', copyText);
+            pipBtn.addEventListener('click', togglePiP);
+
+            // Video PiP events
+            pipVideo.addEventListener('enterpictureinpicture', onPiPStart);
+            pipVideo.addEventListener('leavepictureinpicture', onPiPEnd);
+        }
+
+        function updatePreview() {
+            const text = textInput.value || 'Masukkan teks transkrip Anda...';
+            previewContent.innerHTML = text.replace(/\n/g, '<br>');
+        }
+
+        // Scrolling functions
+        function startScrolling() {
+            if (isScrolling) return;
+            
+            isScrolling = true;
+            startBtn.disabled = true;
+            status.textContent = 'Status: Scrolling aktif...';
+            
+            scrollInterval = setInterval(() => {
+                previewContent.scrollTop += speed;
+                
+                // Reset jika sampai akhir
+                if (previewContent.scrollTop >= previewContent.scrollHeight - previewContent.clientHeight) {
+                    resetScrolling();
+                }
+            }, 100);
+        }
+
+        function pauseScrolling() {
+            if (!isScrolling) return;
+            
+            clearInterval(scrollInterval);
+            isScrolling = false;
+            startBtn.disabled = false;
+            status.textContent = 'Status: Scrolling dijeda';
+        }
+
+        function resetScrolling() {
+            pauseScrolling();
+            previewContent.scrollTop = 0;
+            status.textContent = 'Status: Reset posisi scroll';
+            setTimeout(() => {
+                status.textContent = 'Status: Siap';
+            }, 2000);
+        }
+
+        // Save and copy functions
+        function saveText() {
+            const textToSave = textInput.value || ' ';
+            const blob = new Blob([textToSave], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'transkrip.txt';
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+            
+            status.textContent = 'Status: Teks disimpan!';
+            setTimeout(() => {
+                status.textContent = 'Status: Siap';
+            }, 2000);
+        }
+
+        function copyText() {
+            textInput.select();
+            document.execCommand('copy');
+            status.textContent = 'Status: Teks disalin!';
+            setTimeout(() => {
+                status.textContent = 'Status: Siap';
+            }, 2000);
+        }
+
+        // Picture-in-Picture functions
+        function togglePiP() {
+            if (isPiPActive) {
+                stopPiP();
+            } else {
+                startPiP();
+            }
+        }
+
+        function startPiP() {
+            try {
+                // Cek dukungan PiP
+                if (!document.pictureInPictureEnabled) {
+                    alert('Browser Anda tidak mendukung Picture-in-Picture');
+                    return;
+                }
+
+                // Update canvas dengan konten teks
+                updatePiPCanvas();
+                
+                // Stream canvas ke video
+                const stream = pipCanvas.captureStream(25);
+                pipVideo.srcObject = stream;
+                
+                // Mulai PiP
+                pipVideo.requestPictureInPicture().then(() => {
+                    status.textContent = 'Status: PiP aktif! Jendela mengambang di atas aplikasi lain';
+                    pipBtn.textContent = 'Hentikan PiP';
+                    isPiPActive = true;
+                    
+                    // Update canvas setiap frame
+                    pipInterval = setInterval(updatePiPCanvas, 100);
+                }).catch(error => {
+                    console.error('PiP error:', error);
+                    status.textContent = 'Status: Gagal mengaktifkan PiP - ' + error.message;
+                });
+                
+            } catch (error) {
+                console.error('PiP error:', error);
+                status.textContent = 'Status: Error - ' + error.message;
+                
+                // Fallback: tampilkan instruksi manual
+                alert('Aktifkan PiP secara manual:\n1. Klik tombol PiP di player video\n2. Atau gunakan menu browser untuk PiP');
+            }
+        }
+
+        function stopPiP() {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture();
+            }
+            clearInterval(pipInterval);
+            isPiPActive = false;
+            pipBtn.textContent = 'Aktifkan PiP';
+            status.textContent = 'Status: PiP dinonaktifkan';
+        }
+
+        function updatePiPCanvas() {
+            if (!ctx) return;
+            
+            // Clear canvas
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, pipCanvas.width, pipCanvas.height);
+            
+            // Draw border
+            ctx.strokeStyle = '#4facfe';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, pipCanvas.width - 4, pipCanvas.height - 4);
+            
+            // Draw header
+            ctx.fillStyle = '#4facfe';
+            ctx.fillRect(0, 0, pipCanvas.width, 40);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Transkrip Tools', pipCanvas.width/2, 25);
+            
+            // Draw content
+            ctx.fillStyle = '#333333';
+            ctx.font = fontSizeValueCurrent + 'px Arial';
+            ctx.textAlign = 'left';
+            
+            const text = textInput.value || 'Masukkan teks...';
+            const lines = text.split('\n');
+            const lineHeight = fontSizeValueCurrent * 1.4;
+            const startY = 60;
+            
+            // Hitung baris yang terlihat berdasarkan scroll
+            const maxLines = Math.floor((pipCanvas.height - startY - 20) / lineHeight);
+            const scrollProgress = previewContent.scrollTop / (previewContent.scrollHeight - previewContent.clientHeight);
+            const startIndex = Math.floor(scrollProgress * (lines.length - maxLines));
+            
+            // Gambar baris teks
+            for (let i = 0; i < maxLines && (startIndex + i) < lines.length; i++) {
+                const y = startY + (i * lineHeight);
+                if (y < pipCanvas.height - 20) {
+                    ctx.fillText(lines[startIndex + i] || '', 20, y);
+                }
+            }
+            
+            // Draw scroll indicator
+            if (lines.length > maxLines) {
+                const indicatorHeight = 30;
+                const indicatorY = 50 + (scrollProgress * (pipCanvas.height - 90));
+                ctx.fillStyle = '#4facfe';
+                ctx.fillRect(pipCanvas.width - 15, indicatorY, 10, indicatorHeight);
+            }
+        }
+
+        function onPiPStart() {
+            status.textContent = 'Status: Picture-in-Picture aktif! Jendela mengambang di atas aplikasi lain';
+            isPiPActive = true;
+        }
+
+        function onPiPEnd() {
+            clearInterval(pipInterval);
+            isPiPActive = false;
+            pipBtn.textContent = 'Aktifkan PiP';
+            status.textContent = 'Status: Picture-in-Picture ditutup';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
